@@ -1,0 +1,32 @@
+# mysql
+[mysql-server]
+host = "127.0.0.1"
+port = "3306"
+user = "root"
+password = "775028"
+database = "WebMusic"
+charset = "utf8mb4"
+parseTime = "True"
+loc = "Local"
+# mysql dev
+[mysql-server.dev]
+host = "127.0.0.1"
+port = "3306"
+user = "root"
+password = "775028"
+database = "WebMusic"
+charset = "utf8mb4"
+parseTime = "True"
+loc = "Local"
+# redis
+[redis]
+host="127.0.0.1"
+port="6379"
+password="775028"
+database=0
+maxActiveConns=100
+maxIdleConns=10
+[static-files-path]
+path="/Users/acaibird/Documents/CodeExperimentSpace/Go/Game/public/"
+[log-path]
+path="/Users/acaibird/Documents/CodeExperimentSpace/Go/Game/log"
