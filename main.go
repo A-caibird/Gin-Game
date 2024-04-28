@@ -7,9 +7,9 @@ import (
 
 func main() {
 	r := gin.New()
-	//
-	r.Use(gin.Recovery())
+	// Register a global middleware
 	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 	r.Use(middleware.Auth)
 	r.Use(middleware.Cors)
 	//download
