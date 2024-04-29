@@ -5,8 +5,8 @@ import (
 	"github.com/BurntSushi/toml"
 	"log"
 	"os"
-	"path/filepath"
 	"reflect"
+	"runtime"
 	"sort"
 	"strings"
 	"sync"
@@ -59,19 +59,23 @@ func init() {
 }
 func ParseToml() {
 	// 获取当前运行堆栈的帧信息
-	// Retrieve stack frame information for the current execution stack
-	//_, filename, _, _ := runtime.Caller(0)
-	absPath, err := filepath.Abs("config.toml")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Retrieving configuration file path error")
+	//Retrieve stack frame information for the current execution stack
+	//var configPath string
+	var configPath string
+	_, filename, _, ok := runtime.Caller(0)
+	if ok {
+		index := strings.Index(filename, "Game/")
+		if index != -1 {
+			configPath = filename[:index+5] + "config.toml"
+		}
 	}
 	//Retrieve file status information
-	if _, err := os.Stat(absPath); err != nil {
+	if _, err := os.Stat(configPath); err != nil {
 		panic(err)
 	}
 	// decode toml file
 	var config Config
-	meta, err := toml.DecodeFile(absPath, &config)
+	meta, err := toml.DecodeFile(configPath, &config)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%#v", err)
 		os.Exit(1)
