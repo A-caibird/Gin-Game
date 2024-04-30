@@ -7,7 +7,7 @@ import (
 )
 
 func TestSql(t *testing.T) {
-	db, err := Newdb()
+	db, err := InitDb()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
