@@ -30,3 +30,8 @@ maxIdleConns=10
 path="/Users/acaibird/Documents/CodeExperimentSpace/Go/Game/public/"
 [log-path]
 path="/Users/acaibird/Documents/CodeExperimentSpace/Go/Game/log"
+[email]
+host="smtp.qq.com"
+user="1262229357@qq.com"
+AuthPassword="sukpkmlqdjmqjjff"
+port=465

@@ -47,6 +47,12 @@ type Config struct {
 	LogPath struct {
 		Path string `toml:"path"`
 	} `toml:"log-path"`
+	Email struct {
+		Host         string `toml:"host"`
+		Port         int    `toml:"port"`
+		User         string `toml:"user"`
+		AuthPassword string `toml:"AuthPassword"`
+	} `toml:"email"`
 }
 
 var (
