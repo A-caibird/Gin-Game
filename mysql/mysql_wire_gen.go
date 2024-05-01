@@ -8,6 +8,7 @@ package mysql
 
 import (
 	"database/sql"
+	"gorm.io/gorm"
 )
 
 import (
@@ -18,6 +19,14 @@ import (
 
 func InitDb() (*sql.DB, error) {
 	db, err := Newdb()
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+func InitOrmDb() (*gorm.DB, error) {
+	db, err := NewOrmDb()
 	if err != nil {
 		return nil, err
 	}
