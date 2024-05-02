@@ -53,6 +53,15 @@ type Config struct {
 		User         string `toml:"user"`
 		AuthPassword string `toml:"AuthPassword"`
 	} `toml:"email"`
+	Aliyun struct {
+		AccessKeyId     string `toml:"AccessKeyId"`
+		AccessKeySecret string `toml:"AccessKeySecret"`
+		SMS             struct {
+			SignName     string `toml:"SignName"`
+			TemplateCode string `toml:"TemplateCode"`
+			Domain       string `toml:"Domain"`
+		} `toml:"sms"`
+	} `toml:"aliyun"`
 }
 
 var (

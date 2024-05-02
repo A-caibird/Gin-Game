@@ -35,3 +35,10 @@ host="smtp.qq.com"
 user="1262229357@qq.com"
 AuthPassword="sukpkmlqdjmqjjff"
 port=465
+[aliyun]
+AccessKeyId="LTAI5tBhPAUsp5NS3C6jjkyZ"
+AccessKeySecret="m7dXXK3W1F8FWuk69IkhhwwrTPeUqU"
+[aliyun.sms]
+SignName="Acaibird博客"
+TemplateCode="SMS_298160970"
+Domain="dysmsapi.aliyuncs.com"
