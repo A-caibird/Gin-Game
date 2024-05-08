@@ -42,3 +42,8 @@ AccessKeySecret="m7dXXK3W1F8FWuk69IkhhwwrTPeUqU"
 SignName="Acaibird博客"
 TemplateCode="SMS_298160970"
 Domain="dysmsapi.aliyuncs.com"
+[RabbitMQ]
+user="guest"
+password="guest"
+host="localhost"
+port="5672"

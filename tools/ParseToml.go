@@ -62,6 +62,12 @@ type Config struct {
 			Domain       string `toml:"Domain"`
 		} `toml:"sms"`
 	} `toml:"aliyun"`
+	RabbitMQ struct {
+		User     string `toml:"user"`
+		Password string `toml:"password"`
+		Host     string `toml:"host"`
+		Port     string `toml:"port"`
+	} `toml:"RabbitMQ"`
 }
 
 var (
