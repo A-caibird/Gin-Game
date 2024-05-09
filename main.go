@@ -10,8 +10,8 @@ func main() {
 	// Register a global middleware
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	r.Use(middleware.Auth)
 	r.Use(middleware.Cors)
+	r.Use(middleware.Auth)
 	//download
 	r.Group("/download/")
 	r.GET("/ping", func(context *gin.Context) {
@@ -20,5 +20,5 @@ func main() {
 	}, func(context *gin.Context) {
 		context.String(200, "%s", "fasfasfdas")
 	})
-	r.Run(":8080")
+	r.Run(":8000")
 }
