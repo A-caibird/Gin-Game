@@ -1,26 +1,28 @@
 package mysql
 
 import (
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	"Game/mysql/entiy"
+	"fmt"
+	"os"
 	"testing"
 )
 
-type User struct {
-	Name     string
-	Password string
-	ID       uint
-	Email    string
-	Active   int
-}
-
 func TestOrm(t *testing.T) {
-	dsn := "root:775028@tcp(127.0.0.1:3306)/WebMusic?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := NewOrmDb()
 	if err != nil {
-		panic(err.Error())
+		fmt.Fprint(os.Stderr, err.Error())
+		return
 	}
-	var user User
-	res := db.Where("name=?", "root").First(&user).RowsAffected
-	println(res, user.Password)
+	if !db.Migrator().HasTable(&entiy.User{}) {
+		db.Migrator().CreateTable(&entiy.User{})
+		db.Create(&entiy.User{
+			Name:     "root",
+			Password: "root",
+			Phone:    "1",
+			Email:    "fdasf",
+		})
+		var user entiy.User
+		db.Where("name=?", "root").First(&user)
+		fmt.Print(user.Name)
+	}
 }
