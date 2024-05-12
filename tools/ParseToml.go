@@ -68,6 +68,9 @@ type Config struct {
 		Host     string `toml:"host"`
 		Port     string `toml:"port"`
 	} `toml:"RabbitMQ"`
+	RootPath struct {
+		Path string `toml:"path"`
+	} `toml:"RootPath"`
 }
 
 var (

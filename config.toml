@@ -47,3 +47,5 @@ user="guest"
 password="guest"
 host="localhost"
 port="5672"
+[RootPath]
+path="/Users/acaibird/Documents/CodeExperimentSpace/Go/Game"
