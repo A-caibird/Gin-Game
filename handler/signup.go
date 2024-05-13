@@ -46,7 +46,7 @@ func SignUp(c *gin.Context) {
 	}
 	// verify code match check
 	rdb := redis2.NewRedisClient()
-	if val, err := rdb.Get(context.Background(), rby.Phone).Result(); errors.Is(err, redis.Nil) {
+	if val, err := rdb.Get(context.Background(), rby.Phone+"-"+"SignUp").Result(); errors.Is(err, redis.Nil) {
 		c.JSON(http.StatusUnauthorized, struct {
 			ErrorID int
 			Info    string
