@@ -23,7 +23,7 @@ func Auth(c *gin.Context) {
 		return
 	}
 	username := c.Query("username")
-	if val, ok := sessions.Values["username"]; ok {
+	if val, ok := sessions.Values["user_phone"]; ok {
 		if s, e := val.(string); e {
 			if s == username {
 				c.Next()

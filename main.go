@@ -34,5 +34,6 @@ func main() {
 		context.String(200, "%s", "fasfasfdas")
 	})
 	r.POST("/login", handler.Login)
+	r.POST("/signup", handler.SignUp)
 	r.Run(":8000")
 }

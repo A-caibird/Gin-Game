@@ -4,7 +4,7 @@
 //go:build !wireinject
 // +build !wireinject
 
-package redis
+package redis2
 
 import (
 	"github.com/redis/go-redis/v9"

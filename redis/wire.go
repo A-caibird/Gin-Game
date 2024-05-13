@@ -1,7 +1,7 @@
 //go:build wireinject
 // +build wireinject
 
-package redis
+package redis2
 
 import (
 	"github.com/google/wire"
