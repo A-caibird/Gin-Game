@@ -24,16 +24,13 @@ func main() {
 	r.Use(gin.LoggerWithWriter(multiWriter))
 	r.Use(gin.Recovery())
 	r.Use(middleware.Cors)
-	r.Use(middleware.Auth)
-	//download
+	//r.Use(middleware.Auth)
+	// remote
 	r.Group("/download/")
-	r.GET("/ping", func(context *gin.Context) {
-		context.String(200, "%#v", 20+10)
-		context.Next()
-	}, func(context *gin.Context) {
-		context.String(200, "%s", "fasfasfdas")
-	})
-	r.POST("/login", handler.Login)
-	r.POST("/signup", handler.SignUp)
+	r.POST("/logIn/:method", handler.Login)
+	r.POST("/signUp", handler.SignUp)
+	r.POST("/sms/:usage", handler.SendCode)
+
+	// start up
 	r.Run(":8000")
 }

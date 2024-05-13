@@ -17,7 +17,7 @@ func Info(format string, a ...interface{}) {
 	multiWriter := io.MultiWriter(file, os.Stdout)
 	red := color.New(color.BgRed)
 	red.Fprintf(multiWriter, "%s\t", time.Now().String())
-	red.Fprintf(multiWriter, format+"\n", a)
+	red.Fprintf(multiWriter, format, a)
 }
 
 // Red output error log with color to log file writer and os.stdout

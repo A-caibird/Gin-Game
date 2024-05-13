@@ -22,7 +22,10 @@ func TestOrm(t *testing.T) {
 			Email:    "fdasf",
 		})
 		var user entiy.User
-		db.Where("name=?", "root").First(&user)
-		fmt.Print(user.Name)
+		res := db.Where("name=?", "root").First(&user)
+		fmt.Print(res.RowsAffected)
 	}
+	//var user entiy.User
+	res := db.Where("name=?", "root1").First(&entiy.User{})
+	fmt.Print(res.RowsAffected)
 }
