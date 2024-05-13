@@ -23,7 +23,7 @@ func SendSMS(phone string, code string) (*dysmsapi.SendSmsResponse, error) {
 		TemplateParam: tea.String("{\"code\":\"" + code + "\"}"),
 	}
 	response, err := client.SendSms(request)
-	fmt.Println(response)
+	fmt.Printf("%#v", response)
 	if err != nil {
 		fmt.Println(err)
 		return response, err
