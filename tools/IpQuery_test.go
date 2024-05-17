@@ -3,5 +3,5 @@ package tools
 import "testing"
 
 func TestQuery(t *testing.T) {
-	IpLocationQuery("1.2.3.4")
+	IpLocationQuery("198.176.56.24")
 }

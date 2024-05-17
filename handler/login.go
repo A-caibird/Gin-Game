@@ -21,18 +21,21 @@ import (
 type one struct {
 	Phone string
 	Code  string
+	Ip    string
 }
 
 // two login request body
 type two struct {
 	Phone    string
 	Password string
+	Ip       string
 }
 
 // three login request body
 type three struct {
 	Email    string
 	Password string
+	Ip       string
 }
 
 func Login(c *gin.Context) {
@@ -105,7 +108,7 @@ func Login(c *gin.Context) {
 			check(body, c, Session)
 			return
 		}
-	case "three":
+	default:
 		{
 			var body three
 			check(body, c, Session)
@@ -121,16 +124,18 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 	if v, o := body.(two); o {
 		bodyTwo = v
 	} else {
-		v, _ := body.(three)
-		bodyThr = v
-		sign = false
+		v, o := body.(three)
+		if o {
+			bodyThr = v
+			sign = false
+		}
 	}
 	// Unmarshal body
 	var err error
 	if sign {
-		err = c.Bind(&bodyTwo)
+		err = c.BindJSON(&bodyTwo)
 	} else {
-		err = c.Bind(&bodyThr)
+		err = c.BindJSON(&bodyThr)
 	}
 	if err != nil {
 		return false
@@ -151,17 +156,40 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 	} else {
 		res = db.Where(&entiy.User{
 			Email:    bodyThr.Email,
-			Password: bodyTwo.Password,
+			Password: bodyThr.Password,
 		}).First(&user)
 	}
 	// Account validity check
 	if res.RowsAffected == 1 {
 		s.Values["ID"] = user.Phone
 		s.Save(c.Request, c.Writer)
-		tools.Red("%#v%s\n", c.Writer.Header().Get("Set-Cookie"), user.Phone)
-		c.AbortWithStatus(http.StatusOK)
-		// TODO 查询ip归属地,生成登录历史
-		return true
+		var region, ip string
+		if sign {
+			ip = bodyTwo.Ip
+			region = tools.IpLocationQuery(ip)
+		} else {
+			ip = bodyThr.Ip
+			region = tools.IpLocationQuery(ip)
+		}
+		//pattern := `region: ([^,]+),`
+		//re := regexp.MustCompile(pattern)
+		//match := re.FindStringSubmatch(region)
+		//if len(match) >= 1 {
+		//	region := match[1]
+		//	fmt.Println(region)
+		//} else {
+		//	fmt.Println("No match found")
+		//}
+		res := db.Create(&entiy.LoginHistory{
+			UserId: user.ID,
+			Ip:     ip,
+			Region: region,
+		})
+		if res.RowsAffected == 1 {
+			c.AbortWithStatus(http.StatusOK)
+			return true
+		}
+		return false
 	} else {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return false

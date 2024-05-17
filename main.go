@@ -27,8 +27,8 @@ func main() {
 	//r.Use(middleware.Auth)
 	// remote
 	r.Group("/download/")
-	r.POST("/logIn/:method", handler.Login)
-	r.POST("/signUp", handler.SignUp)
+	r.POST("/login/:method", handler.Login)
+	r.POST("/signup", handler.SignUp)
 	r.POST("/sms/:usage", handler.SendCode)
 
 	// start up

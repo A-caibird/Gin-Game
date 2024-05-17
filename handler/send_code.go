@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-// TODO 发送验证码
-
 func SendCode(c *gin.Context) {
 	//  usage
 	//  SignUP, LogIn

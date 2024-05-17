@@ -7,7 +7,7 @@ import (
 )
 
 func IpLocationQuery(ip string) (region string) {
-	var dbPath = "../assert/ip2region.xdb"
+	var dbPath = Conf.RootPath.Path + "/assert/ip2region.xdb"
 	searcher, err := xdb.NewWithFileOnly(dbPath)
 	if err != nil {
 		fmt.Printf("failed to create searcher: %s\n", err.Error())
