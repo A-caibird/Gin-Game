@@ -81,21 +81,21 @@ func Login(c *gin.Context) {
 			rdb := redis2.NewRedisClient()
 			if val, ok := rdb.Get(context.Background(), body.Phone+"-"+"LogIn").Result(); errors.Is(ok, redis.Nil) {
 				c.JSON(http.StatusUnauthorized, struct {
-					ID   int
-					Text string
+					ID      int
+					Content string
 				}{
-					ID:   1,
-					Text: "code expiration",
+					ID:      1,
+					Content: "code expiration",
 				})
 				return
 			} else {
 				if val != body.Code {
 					c.JSON(http.StatusUnauthorized, struct {
-						ID   int
-						Text string
+						ID      int
+						Content string
 					}{
-						ID:   2,
-						Text: "code error",
+						ID:      2,
+						Content: "code error",
 					})
 					return
 				}
@@ -186,12 +186,31 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 			Region: region,
 		})
 		if res.RowsAffected == 1 {
-			c.AbortWithStatus(http.StatusOK)
+			c.JSON(http.StatusOK, struct {
+				ID      uint8
+				Content entiy.User
+			}{
+				ID:      1,
+				Content: user,
+			})
 			return true
 		}
+		c.JSON(http.StatusOK, struct {
+			ID      uint8
+			Content string
+		}{
+			ID:      1,
+			Content: "save login history error",
+		})
 		return false
 	} else {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, struct {
+			ID      int
+			Content string
+		}{
+			ID:      3,
+			Content: "user has not exits",
+		})
 		return false
 	}
 }
