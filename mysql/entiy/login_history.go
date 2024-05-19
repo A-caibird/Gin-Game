@@ -3,8 +3,8 @@ package entiy
 import "gorm.io/gorm"
 
 type LoginHistory struct {
-	gorm.Model
-	UserId uint
-	Ip     string
-	Region string
+	gorm.Model `json:"-"`
+	UserId     uint `json:"-"`
+	Ip         string
+	Region     string
 }
