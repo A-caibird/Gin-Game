@@ -34,6 +34,7 @@ func main() {
 
 	modify := r.Group("/modify_info")
 	modify.PATCH("/name/:id", handler.ModifyName)
+	modify.PATCH("/avatar/:id", handler.ModifyAvatar)
 	// start up
 	r.Run(":8000")
 }
