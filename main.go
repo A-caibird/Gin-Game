@@ -31,6 +31,9 @@ func main() {
 	r.POST("/signup", handler.SignUp)
 	r.POST("/sms/:usage", handler.SendCode)
 	r.GET("/login_histories/:id", handler.QueryLh)
+
+	modify := r.Group("/modify_info")
+	modify.PATCH("/name/:id", handler.ModifyName)
 	// start up
 	r.Run(":8000")
 }
