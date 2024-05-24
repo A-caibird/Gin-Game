@@ -3,9 +3,13 @@ package handler
 import (
 	"Game/mysql"
 	"Game/mysql/entiy"
+	redis2 "Game/redis"
 	"Game/tools"
+	"context"
+	"errors"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"net/http"
 	"os"
 	"path"
@@ -72,4 +76,49 @@ func ModifyAvatar(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Avatar modified successfully"})
+}
+
+func ModifyPhone(c *gin.Context) {
+	type Body struct {
+		ID          int64  `json:"ID"`
+		OriginPhone string `json:"OriginPhone"`
+		DstPhone    string `json:"DstPhone"`
+		Code        string `json:"Code"`
+	}
+	type resp struct {
+		ID      uint
+		Content string
+	}
+	var rby Body
+	if err := c.BindJSON(&rby); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		color.Red("%#v", err.Error())
+		return
+	}
+	rdb := redis2.NewRedisClient()
+	if val, err := rdb.Get(context.Background(), rby.OriginPhone+"-"+"ModifyPhone").Result(); errors.Is(err, redis.Nil) {
+		c.JSON(http.StatusUnauthorized, resp{
+			ID:      0,
+			Content: "code expiration",
+		})
+	} else if val != rby.Code {
+		c.JSON(http.StatusUnauthorized, resp{
+			ID:      1,
+			Content: "code error",
+		})
+	}
+
+	db, err := mysql.NewOrmDb()
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	res := db.Model(&entiy.User{}).Where("id = ? ", rby.ID).Update("phone", rby.DstPhone).RowsAffected
+	if res == 1 {
+		c.Status(http.StatusOK)
+	}
+	c.JSON(http.StatusInternalServerError, resp{
+		ID:      1,
+		Content: "update database error",
+	})
 }

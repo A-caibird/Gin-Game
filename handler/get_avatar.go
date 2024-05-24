@@ -6,6 +6,7 @@ import (
 	"regexp"
 )
 
+// GetAvatar preview file or download file as attachment
 func GetAvatar(c *gin.Context) {
 	id := c.Param("id")
 	path := tools.Conf.RootPath.Path + "/public/avatar/" + id + ".png"

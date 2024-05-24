@@ -28,14 +28,17 @@ func main() {
 	// remote
 	download := r.Group("/download/")
 	download.GET("/avatar/:id", handler.GetAvatar)
+
 	r.POST("/login/:method", handler.Login)
 	r.POST("/signup", handler.SignUp)
 	r.POST("/sms/:usage", handler.SendCode)
 	r.GET("/login_histories/:id", handler.QueryLh)
 	r.GET("/avatar/:id", handler.GetAvatar)
+	//
 	modify := r.Group("/modify_info")
 	modify.PATCH("/name/:id", handler.ModifyName)
 	modify.PATCH("/avatar/:id", handler.ModifyAvatar)
+	modify.PATCH("/phone", handler.ModifyPhone)
 	// start up
 	r.Run(":8000")
 }
