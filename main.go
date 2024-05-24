@@ -26,7 +26,8 @@ func main() {
 	r.Use(middleware.Cors)
 	//r.Use(middleware.Auth)
 	// remote
-	r.Group("/download/")
+	download := r.Group("/download/")
+	download.GET("/avatar/:id", handler.GetAvatar)
 	r.POST("/login/:method", handler.Login)
 	r.POST("/signup", handler.SignUp)
 	r.POST("/sms/:usage", handler.SendCode)
