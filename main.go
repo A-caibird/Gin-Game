@@ -39,6 +39,8 @@ func main() {
 	modify.PATCH("/name/:id", handler.ModifyName)
 	modify.PATCH("/avatar/:id", handler.ModifyAvatar)
 	modify.PATCH("/phone", handler.ModifyPhone)
+	modify.PATCH("/email", handler.ModifyEmail)
+
 	// start up
 	r.Run(":8000")
 }

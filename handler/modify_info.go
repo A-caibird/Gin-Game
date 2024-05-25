@@ -21,6 +21,7 @@ func ModifyName(c *gin.Context) {
 	id := c.Param("id")
 	var body struct{ Name string }
 	if err := c.BindJSON(&body); err != nil {
+		c.AbortWithStatus(400)
 		return
 	}
 	//
@@ -61,6 +62,7 @@ func ModifyAvatar(c *gin.Context) {
 	file, err := c.FormFile("avatar")
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
+		return
 	}
 	avatarPath := path.Join(tools.Conf.RootPath.Path, "/public/avatar/", id+".png")
 	// check avatar if exits,if exits remove origin avatar file
@@ -101,11 +103,13 @@ func ModifyPhone(c *gin.Context) {
 			ID:      0,
 			Content: "code expiration",
 		})
+		return
 	} else if val != rby.Code {
 		c.JSON(http.StatusUnauthorized, resp{
 			ID:      1,
 			Content: "code error",
 		})
+		return
 	}
 
 	db, err := mysql.NewOrmDb()
@@ -116,6 +120,64 @@ func ModifyPhone(c *gin.Context) {
 	res := db.Model(&entiy.User{}).Where("id = ? ", rby.ID).Update("phone", rby.DstPhone).RowsAffected
 	if res == 1 {
 		c.Status(http.StatusOK)
+		return
+	}
+	c.JSON(http.StatusInternalServerError, resp{
+		ID:      1,
+		Content: "update database error",
+	})
+}
+
+func ModifyEmail(c *gin.Context) {
+	type body struct {
+		ID       int64  `json:"ID"`
+		Phone    string `json:"Phone"`
+		NewEmail string `json:"NewEmail"`
+		Code     string `json:"Code"`
+	}
+	type resp struct {
+		ID      uint
+		Content string
+	}
+	//
+	var rby body
+	if err := c.BindJSON(&rby); err != nil {
+		color.Red("%#v\n", err.Error())
+		c.AbortWithStatus(400)
+		return
+	}
+	//
+	db, err := mysql.NewOrmDb()
+	if err != nil {
+		c.AbortWithStatus(500)
+		return
+	}
+	color.Red("%d", rby.ID)
+	res := db.First(&entiy.User{}, rby.ID).RowsAffected
+	if res != 1 {
+		c.AbortWithStatus(404)
+		return
+	}
+	//
+	rdb := redis2.NewRedisClient()
+	if val, err := rdb.Get(context.Background(), rby.Phone+"-"+"ModifyEmail").Result(); errors.Is(err, redis.Nil) {
+		c.JSON(http.StatusUnauthorized, resp{
+			ID:      0,
+			Content: "code expiration",
+		})
+		return
+	} else if val != rby.Code {
+		c.JSON(http.StatusUnauthorized, resp{
+			ID:      1,
+			Content: "code error",
+		})
+		return
+	}
+	//
+	res = db.Model(&entiy.User{ID: uint(rby.ID)}).Update("email", rby.NewEmail).RowsAffected
+	if res == 1 {
+		c.Status(http.StatusOK)
+		return
 	}
 	c.JSON(http.StatusInternalServerError, resp{
 		ID:      1,
