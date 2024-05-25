@@ -32,6 +32,7 @@ func main() {
 	r.POST("/login/:method", handler.Login)
 	r.POST("/signup", handler.SignUp)
 	r.POST("/sms/:usage", handler.SendCode)
+	r.POST("/email_code/:usage", handler.GetEmailCode)
 	r.GET("/login_histories/:id", handler.QueryLh)
 	r.GET("/avatar/:id", handler.GetAvatar)
 	//
