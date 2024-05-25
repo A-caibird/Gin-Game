@@ -29,17 +29,10 @@ func GetEmailCode(c *gin.Context) {
 	}
 	r := rand.New(rand.NewPCG(1, 1))
 	code := strconv.FormatUint(r.Uint64N(900000)+100000, 10)
-	//
-	rdb := redis2.NewRedisClient()
-	if _, err := rdb.Set(context.Background(), body.Phone+"-"+usage, code, 5*time.Minute).Result(); errors.Is(err, redis.Nil) {
-		c.AbortWithStatus(500)
-		return
-	}
 	// send code
 	d := email.InitMailDialer()
 	m := gomail.NewMessage()
 	m.SetHeader("From", tools.Conf.Email.User)
-
 	m.SetHeader("To", body.Email)
 	m.SetAddressHeader("Cc", "dan@example.com", "Dan")
 	m.SetHeader("Subject", "Verify Code")
@@ -47,5 +40,11 @@ func GetEmailCode(c *gin.Context) {
 	if err := d.DialAndSend(m); err != nil {
 		color.Red("fasdfasdfs")
 		c.AbortWithStatus(500)
+	}
+	//
+	rdb := redis2.NewRedisClient()
+	if _, err := rdb.Set(context.Background(), body.Phone+"-"+usage, code, 5*time.Minute).Result(); errors.Is(err, redis.Nil) {
+		c.AbortWithStatus(500)
+		return
 	}
 }
