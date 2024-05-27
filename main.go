@@ -13,13 +13,26 @@ func main() {
 	r := gin.New()
 	// log
 	logFilePath := "./log/gin.log"
-	file, err := os.Create(logFilePath)
-	if err != nil {
-		color.Red("%#v", err)
+	var logFile *os.File
+	if _, err := os.Stat(logFilePath); os.IsExist(err) {
+		file, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			os.Exit(2)
+		} else {
+			logFile = file
+		}
+	} else {
+		color.Red("%#v", "fasfasdf")
+		file, err := os.Create(logFilePath)
+		if err != nil {
+			color.Red("%#v", err)
+			os.Exit(2)
+		}
+		logFile = file
 	}
-	defer file.Close()
+	defer logFile.Close()
 	// writer
-	multiWriter := io.MultiWriter(file, os.Stdout)
+	multiWriter := io.MultiWriter(logFile, os.Stdout)
 	// Register a global middleware
 	r.Use(gin.LoggerWithWriter(multiWriter))
 	r.Use(gin.Recovery())
@@ -33,6 +46,7 @@ func main() {
 	r.POST("/signup", handler.SignUp)
 	r.POST("/sms/:usage", handler.SendCode)
 	r.POST("/email_code/:usage", handler.GetEmailCode)
+	r.POST("/add_friend", handler.AddFriend)
 	//
 	r.GET("/login_histories/:id", handler.QueryLh)
 	r.GET("/avatar/:id", handler.GetAvatar)
@@ -43,7 +57,6 @@ func main() {
 	modify.PATCH("/avatar/:id", handler.ModifyAvatar)
 	modify.PATCH("/phone", handler.ModifyPhone)
 	modify.PATCH("/email", handler.ModifyEmail)
-
 	// start up
 	r.Run(":8000")
 }
