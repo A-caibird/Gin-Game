@@ -12,7 +12,7 @@ func TestSql(t *testing.T) {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 	defer db.Close()
-	smtp, err := db.Prepare("SELECT active FROM users WHERE name = ?")
+	smtp, err := db.Prepare("SELECT id FROM users WHERE name = ?")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return
@@ -20,13 +20,13 @@ func TestSql(t *testing.T) {
 	row, err := smtp.Query("root")
 	defer row.Close()
 
-	var active int
+	var id int
 	for row.Next() {
-		err := row.Scan(&active)
+		err := row.Scan(&id)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			return
 		}
 	}
-	fmt.Println(active)
+	fmt.Println(id)
 }

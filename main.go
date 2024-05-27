@@ -28,13 +28,15 @@ func main() {
 	// remote
 	download := r.Group("/download/")
 	download.GET("/avatar/:id", handler.GetAvatar)
-
+	//
 	r.POST("/login/:method", handler.Login)
 	r.POST("/signup", handler.SignUp)
 	r.POST("/sms/:usage", handler.SendCode)
 	r.POST("/email_code/:usage", handler.GetEmailCode)
+	//
 	r.GET("/login_histories/:id", handler.QueryLh)
 	r.GET("/avatar/:id", handler.GetAvatar)
+	r.GET("/friends/:id", handler.GetFriendInfo)
 	//
 	modify := r.Group("/modify_info")
 	modify.PATCH("/name/:id", handler.ModifyName)
