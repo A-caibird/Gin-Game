@@ -57,6 +57,14 @@ func main() {
 	modify.PATCH("/avatar/:id", handler.ModifyAvatar)
 	modify.PATCH("/phone", handler.ModifyPhone)
 	modify.PATCH("/email", handler.ModifyEmail)
+	//test cookie
+	r.GET("/ping", func(context *gin.Context) {
+		context.SetCookie("a", "lian", 3600, "/", "localhost", false, false)
+		context.String(200, "fasfasdfasdf")
+	})
+	r.GET("/a", func(context *gin.Context) {
+		context.String(200, "1111")
+	})
 	// start up
 	r.Run(":8000")
 }
