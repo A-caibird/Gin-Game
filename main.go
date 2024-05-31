@@ -47,6 +47,7 @@ func main() {
 	r.POST("/sms/:usage", handler.SendCode)
 	r.POST("/email_code/:usage", handler.GetEmailCode)
 	r.POST("/add_friend", handler.AddFriend)
+	r.POST("/send_message", handler.SendMessage)
 	//
 	r.GET("/login_histories/:id", handler.QueryLh)
 	r.GET("/avatar/:id", handler.GetAvatar)
