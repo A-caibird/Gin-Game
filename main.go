@@ -52,6 +52,7 @@ func main() {
 	r.GET("/login_histories/:id", handler.QueryLh)
 	r.GET("/avatar/:id", handler.GetAvatar)
 	r.GET("/friends/:id", handler.GetFriendInfo)
+	r.GET("/diamond", handler.GetDiamondPrice)
 	//
 	modify := r.Group("/modify_info")
 	modify.PATCH("/name/:id", handler.ModifyName)
