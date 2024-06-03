@@ -48,6 +48,8 @@ func main() {
 	r.POST("/email_code/:usage", handler.GetEmailCode)
 	r.POST("/add_friend", handler.AddFriend)
 	r.POST("/send_message", handler.SendMessage)
+	r.POST("/room", handler.RoomId)
+	r.POST("/invite")
 	// buy
 	buy := r.Group("/buy")
 	buy.POST("/diamond", handler.BuyDiamond())
