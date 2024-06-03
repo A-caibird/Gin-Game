@@ -9,6 +9,8 @@ import (
 	"strconv"
 )
 
+// Invite invite friends to a game
+// RabbitMQ queue name: user_FriendId_ invite
 func Invite(c *gin.Context) {
 	type body struct {
 		UserId   int
@@ -44,6 +46,43 @@ func Invite(c *gin.Context) {
 	err = ch2.Publish("", queue.Name, false, false, amqp.Publishing{
 		ContentType: "application/json",
 		Body:        jsonData,
+	})
+	if err != nil {
+		c.AbortWithStatus(500)
+		return
+	}
+	c.Status(200)
+}
+
+// HandleInvite Notify friends if I accept game invitations
+// RabbitMQ queue name: user_FriendId_ invite_handle
+func HandleInvite(c *gin.Context) {
+	type body struct {
+		UserId   int // I
+		FriendId int // Friends who invited you to play the game
+		RoomId   int
+		Result   bool
+	}
+	var rby body
+	if err := c.ShouldBindJSON(&rby); err != nil {
+		return
+	}
+	jsondata, err := json.Marshal(rby)
+	//
+	conn, err := RabbitMQ.NewAmqp()
+	if err != nil {
+		c.AbortWithStatus(500)
+		return
+	}
+	ch2, err := conn.Channel()
+	if err != nil {
+		c.AbortWithStatus(500)
+		return
+	}
+	// Notify friends if I accept game invitations
+	err = ch2.Publish("", "user_"+strconv.Itoa(rby.FriendId)+"_invite_result", false, false, amqp.Publishing{
+		ContentType: "application/json",
+		Body:        jsondata,
 	})
 	if err != nil {
 		c.AbortWithStatus(500)

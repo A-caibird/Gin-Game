@@ -49,7 +49,9 @@ func main() {
 	r.POST("/add_friend", handler.AddFriend)
 	r.POST("/send_message", handler.SendMessage)
 	r.POST("/room", handler.RoomId)
+	// game invite
 	r.POST("/invite", handler.Invite)
+	r.POST("/handle_invite", handler.HandleInvite)
 	// buy
 	buy := r.Group("/buy")
 	buy.POST("/diamond", handler.BuyDiamond())
