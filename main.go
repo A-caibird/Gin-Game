@@ -49,7 +49,7 @@ func main() {
 	r.POST("/add_friend", handler.AddFriend)
 	r.POST("/send_message", handler.SendMessage)
 	r.POST("/room", handler.RoomId)
-	r.POST("/invite")
+	r.POST("/invite", handler.Invite)
 	// buy
 	buy := r.Group("/buy")
 	buy.POST("/diamond", handler.BuyDiamond())
