@@ -9,8 +9,9 @@ import (
 	"strconv"
 )
 
-// Invite invite friends to a game
-// RabbitMQ queue name: user_FriendId_ invite
+// Invite friends to a game
+//
+// create RabbitMQ queue name: user_FriendId_ invite
 func Invite(c *gin.Context) {
 	type body struct {
 		UserId   int
@@ -55,6 +56,7 @@ func Invite(c *gin.Context) {
 }
 
 // HandleInvite Notify friends if I accept game invitations
+//
 // RabbitMQ queue name: user_FriendId_ invite_handle
 func HandleInvite(c *gin.Context) {
 	type body struct {
