@@ -51,9 +51,11 @@ func GetUserBackpack(c *gin.Context) {
 	}
 	defer db.Close()
 	//
-	smtp, err := db.Prepare("SELECT * from GinGame.game_backpack Where user_id = ?;")
+	smtp, err := db.Prepare("SELECT * from GinGame.user_backpacks Where user_id = ?;")
 	if err != nil {
 		c.AbortWithStatus(500)
+		color.Red("%s", err.Error())
+
 		return
 	}
 	//
