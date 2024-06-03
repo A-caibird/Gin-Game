@@ -94,7 +94,7 @@ func BuyBeans(c *gin.Context) {
 		c.AbortWithStatus(402)
 	} else {
 		db.Model(&entiy.UserBackpack{}).Where("user_id = ? ", rby.UserId).Update("diamond", userBackPack.Diamond-rby.Amount)
-		db.Model(&entiy.UserBackpack{}).Where("user_id = ? ", rby.UserId).Update("beans", userBackPack.CardCounter+rby.Count)
+		db.Model(&entiy.UserBackpack{}).Where("user_id = ? ", rby.UserId).Update("beans", userBackPack.Beans+rby.Count)
 		c.AbortWithStatus(200)
 	}
 }

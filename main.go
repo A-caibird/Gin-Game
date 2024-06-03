@@ -82,5 +82,9 @@ func main() {
 		context.String(200, "1111")
 	})
 	// start up
-	r.Run(":8000")
+	err := r.Run(":8000")
+	if err != nil {
+		color.Red("%s", err.Error())
+		return
+	}
 }
