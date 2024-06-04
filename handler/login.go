@@ -78,7 +78,9 @@ func Login(c *gin.Context) {
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
-			res := db.Where("Phone = ?", body.Phone).Find(&entiy.User{})
+			//
+			var user entiy.User
+			res := db.Where("Phone = ?", body.Phone).Find(&user)
 			if res.RowsAffected != 1 {
 				c.AbortWithStatus(http.StatusNotFound)
 				return
@@ -106,7 +108,11 @@ func Login(c *gin.Context) {
 					return
 				}
 			}
-			// TODO 拿到储存的验证码
+			// login successfully
+			c.AbortWithStatus(200)
+			NotifyFriend(body.Phone)
+			GenerateLoginHistory(body.Ip, user, db)
+			return
 		}
 	case "two":
 		{
@@ -122,6 +128,7 @@ func Login(c *gin.Context) {
 		}
 	}
 }
+
 func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 	var bodyTwo two
 	var bodyThr three
@@ -167,27 +174,21 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 	}
 	// Account validity check
 	if res.RowsAffected == 1 {
-		//
+		// write session data to cookie
 		s.Values["ID"] = user.Phone
 		s.Save(c.Request, c.Writer)
 		//
-		var region, ip string
+		var ip string
 		if sign {
 			ip = bodyTwo.Ip
-			region = tools.IpLocationQuery(ip)
 		} else {
 			ip = bodyThr.Ip
-			region = tools.IpLocationQuery(ip)
 		}
 		//Notify friends that I'm online
 		ok, err := NotifyFriend(bodyTwo.Phone)
 		color.Red("%#v %#v", ok, err)
 		//Generate login history
-		res := db.Create(&entiy.LoginHistory{
-			UserId: user.ID,
-			Ip:     ip,
-			Region: region,
-		})
+		res := GenerateLoginHistory(ip, user, db)
 		if res.RowsAffected == 1 {
 			c.JSON(http.StatusOK, struct {
 				ID      uint8
@@ -280,6 +281,10 @@ func NotifyFriend(phone string) (bool, error) {
 	return true, nil
 }
 
-func GenerateLoginHistory(ip string, user entiy.User, db *gorm.DB) {
-
+func GenerateLoginHistory(ip string, user entiy.User, db *gorm.DB) *gorm.DB {
+	return db.Create(&entiy.LoginHistory{
+		UserId: user.ID,
+		Ip:     ip,
+		Region: tools.IpLocationQuery(ip),
+	})
 }
