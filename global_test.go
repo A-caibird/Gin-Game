@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Game/handler"
 	"Game/redis"
 	"context"
 	"errors"
@@ -36,4 +37,9 @@ func Test2(t *testing.T) {
 	} else {
 		fmt.Printf("%#v", val)
 	}
+}
+
+func Test3(t *testing.T) {
+	res, err := handler.NotifyFriend("16608278954")
+	fmt.Printf("%#v %#v", res, err)
 }

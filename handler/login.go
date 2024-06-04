@@ -1,18 +1,23 @@
 package handler
 
 import (
+	"Game/RabbitMQ"
 	"Game/mysql"
 	"Game/mysql/entiy"
 	redis2 "Game/redis"
 	session "Game/sessions"
 	"Game/tools"
 	"context"
+	"encoding/json"
 	"errors"
+	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/sessions"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 	"net/http"
+	"strconv"
 )
 
 // 登录方式:手机号+验证码,手机号+密码,邮箱+密码
@@ -78,6 +83,7 @@ func Login(c *gin.Context) {
 				c.AbortWithStatus(http.StatusNotFound)
 				return
 			}
+			// check verify code
 			rdb := redis2.NewRedisClient()
 			if val, ok := rdb.Get(context.Background(), body.Phone+"-"+"LogIn").Result(); errors.Is(ok, redis.Nil) {
 				c.JSON(http.StatusUnauthorized, struct {
@@ -161,8 +167,10 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 	}
 	// Account validity check
 	if res.RowsAffected == 1 {
+		//
 		s.Values["ID"] = user.Phone
 		s.Save(c.Request, c.Writer)
+		//
 		var region, ip string
 		if sign {
 			ip = bodyTwo.Ip
@@ -171,15 +179,10 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 			ip = bodyThr.Ip
 			region = tools.IpLocationQuery(ip)
 		}
-		//pattern := `region: ([^,]+),`
-		//re := regexp.MustCompile(pattern)
-		//match := re.FindStringSubmatch(region)
-		//if len(match) >= 1 {
-		//	region := match[1]
-		//	fmt.Println(region)
-		//} else {
-		//	fmt.Println("No match found")
-		//}
+		//Notify friends that I'm online
+		ok, err := NotifyFriend(bodyTwo.Phone)
+		color.Red("%#v %#v", ok, err)
+		//Generate login history
 		res := db.Create(&entiy.LoginHistory{
 			UserId: user.ID,
 			Ip:     ip,
@@ -213,4 +216,70 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 		})
 		return false
 	}
+}
+
+func NotifyFriend(phone string) (bool, error) {
+	db, err := mysql.Newdb()
+	if err != nil {
+		return false, err
+	}
+	defer db.Close()
+	// query user's  the id of friend
+	smtp, err := db.Prepare("SELECT id FROM GinGame.users WHERE id IN ( SELECT user_friend_id  FROM GinGame.friends  WHERE user_id = (select id from GinGame.users where phone = ?));")
+	if err != nil {
+		return false, err
+	}
+	row, err := smtp.Query(phone)
+	defer row.Close()
+	//
+	type friendInfo struct {
+		Id int
+	}
+	var friendList []friendInfo
+	var item friendInfo
+	for row.Next() {
+		err := row.Scan(&item.Id)
+		if err != nil {
+			color.Red("%s", err.Error())
+			break
+		}
+		friendList = append(friendList, item)
+	}
+	// rabbitMq
+	conn, err := RabbitMQ.InitAmpq()
+	if err != nil {
+		return false, err
+	}
+	defer conn.Close()
+	//
+	ch2, err := conn.Channel()
+	defer ch2.Close()
+	// query userId
+	var user struct {
+		Id   int
+		Name string
+	}
+	row, err = db.Query("SELECT id,name FROM GinGame.users WHERE phone=?;", phone)
+	if err != nil {
+		return false, err
+	}
+	for row.Next() {
+		err := row.Scan(&user.Id, &user.Name)
+		if err != nil {
+			break
+		}
+	}
+	jsonData, err := json.Marshal(user)
+	//Production Message
+	for _, v := range friendList {
+		err = ch2.Publish("", "user_"+strconv.Itoa(v.Id)+"_Friend_Login_Notify", false, false, amqp.Publishing{
+			ContentType: "application/json",
+			Body:        jsonData,
+		})
+	}
+	return true, nil
+}
+
+func GenerateLoginHistory(ip string, user entiy.User, db *gorm.DB) {
+
 }
