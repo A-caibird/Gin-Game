@@ -159,14 +159,33 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return false
 	}
+	//
 	var res *gorm.DB
 	var user entiy.User
 	if sign {
+		// check if user  exits
+		res = db.Where(&entiy.User{
+			Phone: bodyTwo.Phone,
+		}).First(&user)
+		if res.RowsAffected != 1 {
+			c.AbortWithStatus(404)
+			return false
+		}
+		// check password
 		res = db.Where(&entiy.User{
 			Phone:    bodyTwo.Phone,
 			Password: bodyTwo.Password,
 		}).First(&user)
 	} else {
+		// check if user exits
+		res = db.Where(&entiy.User{
+			Email: bodyThr.Email,
+		}).First(&user)
+		if res.RowsAffected != 1 {
+			c.AbortWithStatus(404)
+			return false
+		}
+		// check password
 		res = db.Where(&entiy.User{
 			Email:    bodyThr.Email,
 			Password: bodyThr.Password,
@@ -208,13 +227,7 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 		})
 		return false
 	} else {
-		c.JSON(http.StatusUnauthorized, struct {
-			ID      int
-			Content string
-		}{
-			ID:      3,
-			Content: "user has not exits",
-		})
+		c.Status(401)
 		return false
 	}
 }
