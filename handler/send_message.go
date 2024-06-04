@@ -15,7 +15,7 @@ func SendMessage(c *gin.Context) {
 		MessageContent string
 	}
 	var rby body
-	if err := c.ShouldBindJSON(&rby); err != nil {
+	if err := c.BindJSON(&rby); err != nil {
 		return
 	}
 	jsonData, err := json.Marshal(rby)
