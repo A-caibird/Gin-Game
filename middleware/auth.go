@@ -26,25 +26,24 @@ func Auth(c *gin.Context) {
 	sessions, err := store.Get(c.Request, "session")
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
-		c.String(404, "%s", err.Error())
-		c.Abort()
-		return
-	}
-	if sessions.IsNew {
-		c.Writer.WriteHeader(http.StatusUnauthorized)
+		// bad request
+		c.String(400, "%s", err.Error())
 		c.Abort()
 		return
 	}
 	//
-	username := c.Query("username")
-	if val, ok := sessions.Values["user_phone"]; ok {
-		if s, e := val.(string); e {
-			if s == username {
-				c.Next()
-			} else {
-				c.AbortWithStatus(http.StatusUnauthorized)
-			}
-		}
+	if sessions.IsNew {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
 	}
-	c.AbortWithStatus(http.StatusUnauthorized)
+	//
+	//if val, ok := sessions.Values["ID"]; ok {
+	//	if s, e := val.(string); e {
+	//		if s == "1" {
+	//			c.Next()
+	//		} else {
+	//			c.AbortWithStatus(http.StatusUnauthorized)
+	//		}
+	//	}
+	//}
 }

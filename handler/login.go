@@ -46,18 +46,18 @@ type three struct {
 func Login(c *gin.Context) {
 	// get Session store
 	store := session.NewSessionStore()
-	Session, err := store.Get(c.Request, "Session")
+	Session, err := store.Get(c.Request, "session")
 	if err != nil {
 		// 400
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	// repeat login check
-	if !Session.IsNew {
-		// 409
-		c.AbortWithStatus(http.StatusConflict)
-		return
-	}
+	//if !Session.IsNew {
+	//	// 409
+	//	c.AbortWithStatus(http.StatusConflict)
+	//	return
+	//}
 	// retrieve login method
 	method := c.Param("method")
 	if method != "one" && method != "two" && method != "three" {
@@ -110,8 +110,13 @@ func Login(c *gin.Context) {
 			}
 			// login successfully
 			c.AbortWithStatus(200)
+			// notify friend I are online now
 			NotifyFriend(body.Phone)
+			// login history
 			GenerateLoginHistory(body.Ip, user, db)
+			//
+			Session.Values["ID"] = user.ID
+			Session.Save(c.Request, c.Writer)
 			return
 		}
 	case "two":
@@ -194,7 +199,7 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 	// Account validity check
 	if res.RowsAffected == 1 {
 		// write session data to cookie
-		s.Values["ID"] = user.Phone
+		s.Values["ID"] = user.ID
 		s.Save(c.Request, c.Writer)
 		//
 		var ip string
