@@ -2,19 +2,26 @@ package middleware
 
 import (
 	session "Game/sessions"
-	"Game/tools"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
+	"regexp"
 )
 
 func Auth(c *gin.Context) {
-	if c.Request.URL.Path == "/login" {
-		tools.Info(c.Request.URL.Path)
-		c.Next()
+	// Determine whether verification can be skipped
+	var excludeAuthPath []string
+	excludeAuthPath = append(excludeAuthPath, "/login", "/signup", "/sms")
+	for _, v := range excludeAuthPath {
+		path := c.Request.URL.Path
+		re := regexp.MustCompile(v)
+		if re.MatchString(path) {
+			c.Next()
+			return
+		}
 	}
-
+	//
 	store := session.NewSessionStore()
 	sessions, err := store.Get(c.Request, "session")
 	if err != nil {
@@ -28,6 +35,7 @@ func Auth(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	//
 	username := c.Query("username")
 	if val, ok := sessions.Values["user_phone"]; ok {
 		if s, e := val.(string); e {
