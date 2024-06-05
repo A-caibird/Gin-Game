@@ -53,11 +53,11 @@ func Login(c *gin.Context) {
 		return
 	}
 	// repeat login check
-	//if !Session.IsNew {
-	//	// 409
-	//	c.AbortWithStatus(http.StatusConflict)
-	//	return
-	//}
+	if !Session.IsNew {
+		// 409
+		c.AbortWithStatus(http.StatusConflict)
+		return
+	}
 	// retrieve login method
 	method := c.Param("method")
 	if method != "one" && method != "two" && method != "three" {
