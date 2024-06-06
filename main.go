@@ -71,7 +71,7 @@ func main() {
 	modify := r.Group("/modify_info")
 	modify.PATCH("/name/:id", handler.ModifyName)
 	modify.PATCH("/avatar/:id", handler.ModifyAvatar)
-	modify.PATCH("/phone", handler.ModifyPhone)
+	modify.PATCH("/phone/:id", handler.ModifyPhone)
 	modify.PATCH("/email", handler.ModifyEmail)
 	modify.PATCH("/password", handler.ModifyPassword)
 	//test cookie
