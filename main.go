@@ -22,7 +22,6 @@ func main() {
 			logFile = file
 		}
 	} else {
-		color.Red("%#v", "fasfasdf")
 		file, err := os.Create(logFilePath)
 		if err != nil {
 			color.Red("%#v", err)
@@ -49,6 +48,7 @@ func main() {
 	r.POST("/add_friend", handler.AddFriend)
 	r.POST("/send_message", handler.SendMessage)
 	r.POST("/room", handler.RoomId)
+	r.POST("/game_match", handler.GameMatch)
 	// game invite
 	r.POST("/invite", handler.Invite)
 	r.POST("/handle_invite", handler.HandleInvite)
@@ -73,6 +73,7 @@ func main() {
 	modify.PATCH("/avatar/:id", handler.ModifyAvatar)
 	modify.PATCH("/phone", handler.ModifyPhone)
 	modify.PATCH("/email", handler.ModifyEmail)
+	modify.PATCH("/password", handler.ModifyPassword)
 	//test cookie
 	r.GET("/ping", func(context *gin.Context) {
 		context.SetCookie("a", "lian", 3600, "/", "localhost", false, false)

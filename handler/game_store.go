@@ -55,7 +55,6 @@ func GetUserBackpack(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatus(500)
 		color.Red("%s", err.Error())
-
 		return
 	}
 	//

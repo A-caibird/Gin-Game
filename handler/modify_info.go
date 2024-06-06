@@ -189,7 +189,6 @@ func ModifyPassword(c *gin.Context) {
 	type body struct {
 		Phone       string
 		Code        string
-		Id          int
 		NewPassword string
 	}
 	type resp struct {
@@ -202,7 +201,7 @@ func ModifyPassword(c *gin.Context) {
 	}
 	//
 	rdb := redis2.NewRedisClient()
-	if val, err := rdb.Get(context.Background(), rby.Phone+"-"+"ModifyPassword").Result(); errors.Is(err, redis.Nil) {
+	if val, err := rdb.Get(context.Background(), rby.Phone+"-"+"ModifyPhone").Result(); errors.Is(err, redis.Nil) {
 		c.JSON(http.StatusUnauthorized, resp{
 			ID:      0,
 			Content: "code expiration",
@@ -221,6 +220,13 @@ func ModifyPassword(c *gin.Context) {
 		c.AbortWithStatus(500)
 		return
 	}
-	db.Model(&entiy.User{}).Where("id = ?", rby.Id).Update("password", rby.NewPassword)
+	var user entiy.User
+	res := db.Where(&entiy.User{Phone: rby.Phone}).First(&user)
+	if res.RowsAffected != 1 {
+		c.AbortWithStatus(404)
+		return
+	}
+	//
+	db.Model(&entiy.User{}).Where("id = ?", user.ID).Update("password", rby.NewPassword)
 	c.AbortWithStatus(200)
 }
