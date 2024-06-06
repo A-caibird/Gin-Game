@@ -184,3 +184,43 @@ func ModifyEmail(c *gin.Context) {
 		Content: "update database error",
 	})
 }
+
+func ModifyPassword(c *gin.Context) {
+	type body struct {
+		Phone       string
+		Code        string
+		Id          int
+		NewPassword string
+	}
+	type resp struct {
+		ID      uint
+		Content string
+	}
+	var rby body
+	if err := c.BindJSON(&rby); err != nil {
+		return
+	}
+	//
+	rdb := redis2.NewRedisClient()
+	if val, err := rdb.Get(context.Background(), rby.Phone+"-"+"ModifyPassword").Result(); errors.Is(err, redis.Nil) {
+		c.JSON(http.StatusUnauthorized, resp{
+			ID:      0,
+			Content: "code expiration",
+		})
+		return
+	} else if val != rby.Code {
+		c.JSON(http.StatusUnauthorized, resp{
+			ID:      1,
+			Content: "code error",
+		})
+		return
+	}
+	//
+	db, err := mysql.NewOrmDb()
+	if err != nil {
+		c.AbortWithStatus(500)
+		return
+	}
+	db.Model(&entiy.User{}).Where("id = ?", rby.Id).Update("password", rby.NewPassword)
+	c.AbortWithStatus(200)
+}
