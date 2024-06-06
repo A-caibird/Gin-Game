@@ -1,14 +1,17 @@
 package handler
 
 import (
-	"github.com/TheAlgorithms/Go/structure/deque"
-	"github.com/fatih/color"
+	"github.com/TheAlgorithms/Go/structure/set"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-playground/locales/de"
 )
 
-var Queue1 = deque.New[int]()
-var Queue2 = deque.New[int]()
-var Queue3 = deque.New[int]()
+var set1 = set.New[int]()
+var set2 = set.New[int]()
+var set3 = set.New[int]()
+var sli1 = make([]int, 3)
+var sli2 = make([]int, 2)
+var sli3 = make([]int, 4)
 
 func GameMatch(c *gin.Context) {
 	type body struct {
@@ -19,37 +22,48 @@ func GameMatch(c *gin.Context) {
 	if err := c.BindJSON(&rby); err != nil {
 		return
 	}
-	//Subscriber1
-
+	//
 	switch rby.GameType {
 	case "斗地主":
-		Queue1.EnqueueRear(rby.UserId)
-		match(c, Queue1, 3)
+		if set1.In(rby.UserId) {
+			c.AbortWithStatus(409)
+			return
+		}
+		sli1 = append(sli1, rby.UserId)
+		match(c, set1, 3, rby.UserId)
 		break
 	case "象棋":
-		Queue2.EnqueueRear(rby.UserId)
+		if set2.In(rby.UserId) {
+			c.AbortWithStatus(409)
+			return
+		}
+		sli2 = append(sli2, rby.UserId)
+		match(c, set2, 2, rby.UserId)
 		break
 	case "麻将":
-		Queue3.EnqueueRear(rby.UserId)
+		if set3.In(rby.UserId) {
+			c.AbortWithStatus(409)
+			return
+		}
+		sli3 = append(sli3, rby.UserId)
+		match(c, set1, 4, rby.UserId)
 	}
 }
 
-func match(c *gin.Context, queue *deque.DoublyEndedQueue[int], num int) {
-	var res []int
-	if queue.Length() == num+1 {
-		for range num {
-			_, _ = queue.DequeueFront()
+func match(c *gin.Context, Set set.Set[int], num int, id int) {
+	Set.Add(id)
+	if Set.Len() == num+1 {
+		for _, v := range sli1 {
+			if v == id {
+				continue
+			}
+			Set.Delete(v)
 		}
 	}
 	for {
-		color.Red("%d \n", queue.Length())
-		if queue.Length() == num {
-			for range num {
-				v, _ := queue.DequeueFront()
-				res = append(res, v)
-				queue.EnqueueRear(v)
-			}
-			c.JSON(200, res)
+		//color.Red("%d \n", Set.Len())
+		if Set.Len() == num {
+			c.JSON(200, Set.GetItems())
 			return
 		}
 	}
