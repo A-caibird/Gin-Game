@@ -10,8 +10,8 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 	"net/http"
-	"sync"
 )
 
 type body struct {
@@ -68,27 +68,32 @@ func SignUp(c *gin.Context) {
 		}
 	}
 	// write user info to database
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		res = db.Create(&entiy.User{
-			Phone:    rby.Phone,
-			Email:    rby.Email,
-			Password: rby.Password,
-			Name:     rby.Name,
-		})
-		if res.RowsAffected != 1 {
-			c.String(http.StatusInternalServerError, "when writing user information to database throw a error")
-		} else {
-			c.String(http.StatusOK, "sign up successfully")
-		}
-		wg.Done()
-	}(&wg)
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		Session.Values["user_phone"] = rby.Phone
-		Session.Save(c.Request, c.Writer)
-		wg.Done()
-	}(&wg)
-	wg.Wait()
+	res = db.Create(&entiy.User{
+		Phone:    rby.Phone,
+		Email:    rby.Email,
+		Password: rby.Password,
+		Name:     rby.Name,
+	})
+	if res.RowsAffected != 1 {
+		c.String(http.StatusInternalServerError, "when writing user information to database throw a error")
+		return
+	} else {
+		c.String(http.StatusOK, "sign up successfully")
+	}
+	// retrieve user id
+	var user entiy.User
+	db.Model(&entiy.User{
+		Phone: rby.Phone,
+	}).First(&user)
+	//
+	db.Create(&entiy.UserBackpack{
+		Model:       gorm.Model{},
+		Diamond:     0,
+		Beans:       0,
+		CardCounter: 0,
+		UserId:      int(user.ID),
+	})
+	//
+	Session.Values["ID"] = user.ID
+	Session.Save(c.Request, c.Writer)
 }
