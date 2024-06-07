@@ -124,7 +124,16 @@ func CancelMatch(c *gin.Context) {
 	case "斗地主":
 		if set1.In(rby.UserId) {
 			set1.Delete(rby.UserId)
-
+			//
+			j := 0
+			for _, v := range sli1 {
+				if v != rby.UserId {
+					sli1[j] = v
+					j++
+				}
+			}
+			sli1 = sli1[:j]
+			//
 			c.AbortWithStatus(200)
 			return
 		}
@@ -132,6 +141,17 @@ func CancelMatch(c *gin.Context) {
 	case "象棋":
 		if set2.In(rby.UserId) {
 			set2.Delete(rby.UserId)
+			//
+			set1.Delete(rby.UserId)
+			j := 0
+			for _, v := range sli2 {
+				if v != rby.UserId {
+					sli2[j] = v
+					j++
+				}
+			}
+			sli2 = sli2[:j]
+			//
 			c.AbortWithStatus(200)
 			return
 		}
@@ -139,6 +159,16 @@ func CancelMatch(c *gin.Context) {
 	case "麻将":
 		if set3.In(rby.UserId) {
 			set3.Delete(rby.UserId)
+			//
+			j := 0
+			for _, v := range sli3 {
+				if v != rby.UserId {
+					sli3[j] = v
+					j++
+				}
+			}
+			sli3 = sli3[:j]
+			//
 			c.AbortWithStatus(200)
 			return
 		}
