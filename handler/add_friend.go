@@ -16,6 +16,7 @@ func AddFriend(c *gin.Context) {
 	var rby body
 	if err := c.BindJSON(&rby); err != nil {
 		color.Red("%s", err.Error())
+		return
 	}
 	//
 	db, err := mysql.InitDb()

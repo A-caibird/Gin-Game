@@ -49,6 +49,7 @@ func main() {
 	r.POST("/send_message", handler.SendMessage)
 	r.POST("/room", handler.RoomId)
 	r.POST("/game_match", handler.GameMatch)
+	r.POST("/cancel_match", handler.CancelMatch)
 	// game invite
 	r.POST("/invite", handler.Invite)
 	r.POST("/handle_invite", handler.HandleInvite)
