@@ -68,3 +68,38 @@ func match(c *gin.Context, Set set.Set[int], num int, id int) {
 		}
 	}
 }
+func CancelMatch(c *gin.Context) {
+	type body struct {
+		GameType string
+		UserId   int
+	}
+	var rby body
+	if err := c.BindJSON(&rby); err != nil {
+		return
+	}
+	//
+	switch rby.GameType {
+	case "斗地主":
+		if set1.In(rby.UserId) {
+			set1.Delete(rby.UserId)
+			c.AbortWithStatus(200)
+			return
+		}
+		break
+	case "象棋":
+		if set2.In(rby.UserId) {
+			set2.Delete(rby.UserId)
+			c.AbortWithStatus(200)
+			return
+		}
+		break
+	case "麻将":
+		if set3.In(rby.UserId) {
+			set3.Delete(rby.UserId)
+			c.AbortWithStatus(200)
+			return
+		}
+		break
+	}
+	c.AbortWithStatus(400)
+}
