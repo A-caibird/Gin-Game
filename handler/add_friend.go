@@ -18,6 +18,10 @@ func AddFriend(c *gin.Context) {
 		color.Red("%s", err.Error())
 		return
 	}
+	if rby.FriendId == rby.UserId {
+		c.AbortWithStatus(400)
+		return
+	}
 	//
 	db, err := mysql.InitDb()
 	if err != nil {
@@ -26,17 +30,35 @@ func AddFriend(c *gin.Context) {
 	}
 	defer db.Close()
 	//
-	smtp, err := db.Prepare("insert into friends (created_at, updated_at, user_id, user_friend_id) values (?,?,?,?)")
+	tx, err := db.Begin()
 	if err != nil {
 		c.AbortWithStatus(500)
 		return
 	}
-	res, err := smtp.Exec(time.Now(), time.Now(), rby.UserId, rby.FriendId)
-	if cnt, _ := res.RowsAffected(); cnt == 1 {
-		c.AbortWithStatus(200)
+	// exits
+	var cnt int
+	err = tx.QueryRow("SELECT COUNT(*) from friends WHERE user_id = ? AND  user_friend_id = ?;", rby.UserId, rby.FriendId).Scan(&cnt)
+	if err != nil {
+		c.AbortWithStatus(500)
+		return
+	}
+	if cnt > 0 {
+		tx.Rollback()
+		c.AbortWithStatus(409)
 		return
 	} else {
-		color.Red("%#v", cnt)
+		smtp, err := db.Prepare("insert into friends (created_at, updated_at, user_id, user_friend_id) values (?,?,?,?)")
+		if err != nil {
+			c.AbortWithStatus(500)
+			return
+		}
+		res, err := smtp.Exec(time.Now(), time.Now(), rby.UserId, rby.FriendId)
+		if cnt, _ := res.RowsAffected(); cnt == 1 {
+			c.AbortWithStatus(200)
+			return
+		} else {
+			color.Red("%#v", cnt)
+		}
 	}
 	c.AbortWithStatus(http.StatusServiceUnavailable)
 }
