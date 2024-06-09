@@ -19,9 +19,10 @@ func Invite(c *gin.Context) {
 		RoomId   int
 	}
 	var rby body
-	if err := c.ShouldBindJSON(&rby); err != nil {
+	if err := c.BindJSON(&rby); err != nil {
 		return
 	}
+	color.Red("%#v\n", rby)
 	jsonData, err := json.Marshal(rby)
 	if err != nil {
 		c.AbortWithStatus(400)
@@ -44,6 +45,7 @@ func Invite(c *gin.Context) {
 		color.Red("%s", err.Error())
 		return
 	}
+	color.Red("%s", queue.Name)
 	err = ch2.Publish("", queue.Name, false, false, amqp.Publishing{
 		ContentType: "application/json",
 		Body:        jsonData,
