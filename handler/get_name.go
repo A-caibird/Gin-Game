@@ -19,7 +19,7 @@ func GetNameById(c *gin.Context) {
 	}
 	//
 	var user entiy.User
-	db.Model(entiy.User{
+	db.Where(entiy.User{
 		ID: uint(Id),
 	}).First(&user)
 	c.JSON(200, user.Name)
