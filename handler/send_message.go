@@ -5,13 +5,12 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"strconv"
 )
 
 func SendMessage(c *gin.Context) {
 	type body struct {
 		UserId         uint
-		RoomId         uint
+		RoomId         string
 		MessageContent string
 	}
 	var rby body
@@ -31,7 +30,7 @@ func SendMessage(c *gin.Context) {
 		c.AbortWithStatus(500)
 		return
 	}
-	err = ch2.Publish("", "RoomId_"+strconv.Itoa(int(rby.RoomId)), false, false, amqp.Publishing{
+	err = ch2.Publish("", "RoomId_"+rby.RoomId, false, false, amqp.Publishing{
 		ContentType: "application/json",
 		Body:        jsonData,
 	})

@@ -16,7 +16,7 @@ func Invite(c *gin.Context) {
 	type body struct {
 		UserId   int
 		FriendId int
-		RoomId   int
+		RoomId   string
 	}
 	var rby body
 	if err := c.BindJSON(&rby); err != nil {
@@ -64,11 +64,11 @@ func HandleInvite(c *gin.Context) {
 	type body struct {
 		UserId   int // I
 		FriendId int // Friends who invited you to play the game
-		RoomId   int
+		RoomId   string
 		Result   bool
 	}
 	var rby body
-	if err := c.ShouldBindJSON(&rby); err != nil {
+	if err := c.BindJSON(&rby); err != nil {
 		return
 	}
 	jsondata, err := json.Marshal(rby)
