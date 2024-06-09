@@ -2,77 +2,46 @@ package handler
 
 import (
 	"Game/mysql"
-	"Game/mysql/entiy"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
 func SearchUser(c *gin.Context) {
 	//
-	method := c.Param("method")
+	patter := c.Query("pattern")
 	//
-	db, err := mysql.NewOrmDb()
+	db, err := mysql.Newdb()
 	if err != nil {
 		c.AbortWithStatus(500)
 		return
 	}
-	if method == "name" {
-		name, ok := c.GetQuery("name")
-		if !ok {
-			c.AbortWithStatus(400)
-			color.Red("%s", name)
-			return
-		}
-		//
-		var users []entiy.User
-		db.Model(entiy.User{}).Where("name LIKE ?", "%"+name+"%").Find(&users)
-		//
-		var res []struct {
-			ID     uint
-			Name   string
-			Online bool
-		}
-		for _, v := range users {
-			res = append(res, struct {
-				ID     uint
-				Name   string
-				Online bool
-			}{
-				ID:     v.ID,
-				Name:   v.Name,
-				Online: v.Online,
-			})
-		}
-		c.JSON(200, res)
-		return
-	} else {
-		phone, ok := c.GetQuery("phone")
-		if !ok {
-			c.AbortWithStatus(400)
-			color.Red("%s", phone)
-			return
-		}
-		//
-		var users []entiy.User
-		db.Model(entiy.User{}).Where("phone LIKE ?", "%"+phone+"%").Find(&users)
-		//
-		var res []struct {
-			ID     uint
-			Name   string
-			Online bool
-		}
-		for _, v := range users {
-			res = append(res, struct {
-				ID     uint
-				Name   string
-				Online bool
-			}{
-				ID:     v.ID,
-				Name:   v.Name,
-				Online: v.Online,
-			})
-		}
-		c.JSON(200, res)
+	//
+	smtp, err := db.Prepare("SELECT DISTINCT u.id,u.name\n FROM GinGame.users u\n WHERE u.phone LIKE ? \n   OR u.name LIKE ? \n   AND u.deleted_at IS NULL\n GROUP BY u.id DESC;")
+	if err != nil {
+		color.Red("%s", err.Error())
+		c.AbortWithStatus(500)
 		return
 	}
+	//
+	rows, err := smtp.Query("%"+patter+"%", "%"+patter+"%")
+	defer rows.Close()
+	//
+	var res []struct {
+		Id   int
+		Name string
+	}
+	for rows.Next() {
+		var item struct {
+			Id   int
+			Name string
+		}
+		err := rows.Scan(&item.Id, &item.Name)
+		if err != nil {
+			color.Red("%s", err.Error())
+			break
+		}
+		res = append(res, item)
+	}
+	c.JSON(200, res)
+	return
 }

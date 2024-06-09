@@ -66,7 +66,7 @@ func main() {
 	r.GET("/beans", handler.GetBeansPrice)
 	r.GET("/game_props", handler.GetGameProps)
 	r.GET("/user_backpack/:id", handler.GetUserBackpack)
-	r.GET("/search/:method", handler.SearchUser)
+	r.GET("/search", handler.SearchUser)
 	r.GET("/game_result/:id", handler.QueryGameResult)
 	r.GET("/get_name/:id", handler.GetNameById)
 	//
