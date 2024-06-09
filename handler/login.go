@@ -181,6 +181,10 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 			Phone:    bodyTwo.Phone,
 			Password: bodyTwo.Password,
 		}).First(&user)
+		if res.RowsAffected != 1 {
+			c.AbortWithStatus(401)
+			return false
+		}
 	} else {
 		// check if user exits
 		res = db.Where(&entiy.User{
@@ -195,6 +199,10 @@ func check(body interface{}, c *gin.Context, s *sessions.Session) bool {
 			Email:    bodyThr.Email,
 			Password: bodyThr.Password,
 		}).First(&user)
+		if res.RowsAffected != 1 {
+			c.AbortWithStatus(401)
+			return false
+		}
 	}
 	// Account validity check
 	if res.RowsAffected == 1 {

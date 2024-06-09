@@ -68,6 +68,7 @@ func main() {
 	r.GET("/user_backpack/:id", handler.GetUserBackpack)
 	r.GET("/search/:method", handler.SearchUser)
 	r.GET("/game_result/:id", handler.QueryGameResult)
+	r.GET("/get_name/:id", handler.GetNameById)
 	//
 	modify := r.Group("/modify_info")
 	modify.PATCH("/name/:id", handler.ModifyName)
