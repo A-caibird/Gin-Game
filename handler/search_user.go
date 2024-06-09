@@ -16,7 +16,7 @@ func SearchUser(c *gin.Context) {
 		return
 	}
 	//
-	smtp, err := db.Prepare("SELECT DISTINCT u.id,u.name\n FROM GinGame.users u\n WHERE u.phone LIKE ? \n   OR u.name LIKE ? \n   AND u.deleted_at IS NULL\n GROUP BY u.id;")
+	smtp, err := db.Prepare("SELECT DISTINCT u.id,u.name,u.online\n FROM GinGame.users u\n WHERE u.phone LIKE ? \n   OR u.name LIKE ? \n   AND u.deleted_at IS NULL\n GROUP BY u.id;")
 	if err != nil {
 		color.Red("%s", err.Error())
 		c.AbortWithStatus(500)
@@ -27,15 +27,17 @@ func SearchUser(c *gin.Context) {
 	defer rows.Close()
 	//
 	var res []struct {
-		Id   int
-		Name string
+		Id     int
+		Name   string
+		Online bool
 	}
 	for rows.Next() {
 		var item struct {
-			Id   int
-			Name string
+			Id     int
+			Name   string
+			Online bool
 		}
-		err := rows.Scan(&item.Id, &item.Name)
+		err := rows.Scan(&item.Id, &item.Name, &item.Online)
 		if err != nil {
 			color.Red("%s", err.Error())
 			break
