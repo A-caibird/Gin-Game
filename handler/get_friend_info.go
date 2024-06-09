@@ -17,7 +17,7 @@ func GetFriendInfo(c *gin.Context) {
 	}
 	defer db.Close()
 	// prepare query
-	smtp, err := db.Prepare("SELECT A.user_friend_id,B.name, B.online FROM  friends  A JOIN users B ON A.user_id = B.id WHERE A.user_id = ?;")
+	smtp, err := db.Prepare("SELECT DISTINCT A.user_friend_id,B.name, B.online FROM  friends  A JOIN users B ON A.user_friend_id = B.id WHERE A.user_id = ?;")
 	if err != nil {
 		color.Red("%s", err.Error())
 		c.AbortWithStatus(500)
