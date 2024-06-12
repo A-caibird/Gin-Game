@@ -2,6 +2,10 @@ package handler
 
 import (
 	"Game/RabbitMQ"
+	"Game/mysql"
+	"Game/mysql/entiy"
+	redis2 "Game/redis"
+	"context"
 	"encoding/json"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
@@ -72,7 +76,44 @@ func HandleInvite(c *gin.Context) {
 		return
 	}
 	jsondata, err := json.Marshal(rby)
-	//
+	if rby.Result {
+		db, err := mysql.NewOrmDb()
+		if err != nil {
+			c.AbortWithStatus(500)
+			return
+		}
+		// save all user in room
+		rdb := redis2.NewRedisClient()
+		if _, err := rdb.RPush(context.Background(), rby.RoomId, rby.UserId).Result(); err != nil {
+			c.AbortWithStatus(500)
+			return
+		}
+		// retrieve all user in room
+		var userListInRoom []struct {
+			UserId   int    `json:"userId"`
+			UserName string `json:"userName"`
+		}
+		elements, err := rdb.LRange(context.Background(), rby.RoomId, 0, -1).Result()
+		if err != nil {
+			color.Red("3333 %s", err.Error())
+		}
+		color.Red("1111 %#v", elements)
+		for _, val := range elements {
+			e, _ := strconv.Atoi(val)
+			var user entiy.User
+			db.Where(entiy.User{ID: uint(e)}).First(&user)
+			userListInRoom = append(userListInRoom, struct {
+				UserId   int    `json:"userId"`
+				UserName string `json:"userName"`
+			}{
+				UserId:   e,
+				UserName: user.Name,
+			})
+		}
+		//
+		c.JSON(200, userListInRoom)
+	}
+	// notify room owner if I accept game invitations
 	conn, err := RabbitMQ.NewAmqp()
 	if err != nil {
 		c.AbortWithStatus(500)
@@ -83,7 +124,7 @@ func HandleInvite(c *gin.Context) {
 		c.AbortWithStatus(500)
 		return
 	}
-	// Notify friends if I accept game invitations
+	//
 	err = ch2.Publish("", "user_"+strconv.Itoa(rby.FriendId)+"_invite_result", false, false, amqp.Publishing{
 		ContentType: "application/json",
 		Body:        jsondata,
@@ -92,5 +133,5 @@ func HandleInvite(c *gin.Context) {
 		c.AbortWithStatus(500)
 		return
 	}
-	c.Status(200)
+	c.AbortWithStatus(200)
 }
