@@ -47,7 +47,8 @@ func main() {
 	r.POST("/email_code/:usage", handler.GetEmailCode)
 	r.POST("/add_friend", handler.AddFriend)
 	r.POST("/send_message", handler.SendMessage)
-	r.POST("/room", handler.RoomId)
+	r.POST("/room/:id", handler.RoomId)
+	r.DELETE("/remove_room/:id", handler.RemoveRoom)
 	r.POST("/game_match", handler.GameMatch)
 	r.POST("/cancel_match", handler.CancelMatch)
 	// game invite
