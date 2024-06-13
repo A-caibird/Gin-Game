@@ -11,6 +11,7 @@ import (
 
 func main() {
 	r := gin.New()
+
 	// log
 	logFilePath := "./log/gin.log"
 	var logFile *os.File
@@ -45,7 +46,8 @@ func main() {
 	r.POST("/signup", handler.SignUp)
 	r.POST("/sms/:usage", handler.SendCode)
 	r.POST("/email_code/:usage", handler.GetEmailCode)
-	r.POST("/add_friend", handler.AddFriend)
+	r.POST("/addFriend", handler.AddFriend)
+	r.POST("/add_friend", handler.FriendNotifyEmail)
 	r.POST("/send_message", handler.SendMessage)
 	r.POST("/room", handler.RoomId)
 	r.POST("/game_match", handler.GameMatch)
@@ -69,6 +71,7 @@ func main() {
 	r.GET("/search", handler.SearchUser)
 	r.GET("/game_result/:id", handler.QueryGameResult)
 	r.GET("/get_name/:id", handler.GetNameById)
+	r.GET("/get_email/:id", handler.GetEmail)
 	//
 	modify := r.Group("/modify_info")
 	modify.PATCH("/name/:id", handler.ModifyName)
@@ -77,7 +80,7 @@ func main() {
 	modify.PATCH("/email", handler.ModifyEmail)
 	modify.PATCH("/password", handler.ModifyPassword)
 	//test cookie
-	r.GET("/ping", func(context *gin.Context) {
+	r.GET("/pinga", func(context *gin.Context) {
 		context.SetCookie("a", "lian", 3600, "/", "localhost", false, false)
 		context.String(200, "fasfasdfasdf")
 	})
