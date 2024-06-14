@@ -63,10 +63,10 @@ func GetEmail(c *gin.Context) {
 		return
 	}
 	//
-	var email entiy.Emails
+	var email []entiy.Emails
 	db.Where(entiy.Emails{
 		ReceiverId: uint(idInt),
-	}).First(&email)
+	}).Find(&email)
 	//
 	c.JSON(200, email)
 }
